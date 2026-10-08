@@ -1,0 +1,113 @@
+// Apple (IN) Design System overrides
+$color-1: #1D1D1F; // Text Primary
+$color-2: #0066CC; // Accent (Primary Blue)
+$color-3: #B64400; // Accent
+$color-4: #6E6E73; // Text Secondary
+$color-5: #FF791B; // Accent
+$color-6: #D2D2D7; // Surface
+$color-7: #FFFFFF; // Text Light
+
+// Bootstrap Variable Overrides
+$primary: $color-2;
+$secondary: $color-4;
+$dark: $color-1;
+$light: #F5F5F7; // Apple's light gray background
+$body-bg: $light;
+$body-color: $color-1;
+
+$font-family-base: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+// Typography (Mapping from DESIGN.md - converted to rem assuming 1rem=16px)
+$h1-font-size: 2.75rem; // 44px
+$h2-font-size: 1.75rem; // 28px
+$h3-font-size: 1.25rem; // 20px
+$h4-font-size: 1.0625rem; // 17px
+$font-size-base: 0.875rem; // 14px
+$font-size-sm: 0.75rem; // 12px
+
+// Border Radius
+$border-radius: 18px; // radius-sm
+$border-radius-lg: 56px; // radius-md
+
+// Card Overrides
+$card-border-radius: $border-radius;
+$card-border-color: rgba(0,0,0,0);
+$card-cap-bg: transparent;
+
+// Buttons
+$btn-border-radius: $border-radius;
+$btn-padding-y: 0.5rem;
+$btn-padding-x: 1rem;
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// Apple-specific tweaks
+.shadow-sm {
+  box-shadow: rgba(0, 0, 0, 0.04) 0px 4px 16px 0px !important;
+}
+
+.shadow-diffuse {
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 10px 40px -10px, rgba(0, 0, 0, 0.04) 0px 1px 3px 0px !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba($color-6, 0.2);
+}
+
+.bg-surface {
+  background-color: $color-6;
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.glass-sidebar {
+  background: rgba(29, 29, 31, 0.8) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.edgeless-card {
+  border-radius: 24px;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+// Marquee Animation
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 20s linear infinite;
+}
+
+.marquee-content:hover {
+  animation-play-state: paused;
+}
+
+// Video Crop (to hide watermarks at edges)
+.video-crop-watermark {
+  transform: scale(1.15);
+  object-fit: cover;
+}
+
+// Micro-animations
+.btn, .nav-link, .card {
+  transition: all 0.3s cubic-bezier(0, 0, 0.5, 1);
+}

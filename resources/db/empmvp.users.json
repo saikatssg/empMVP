@@ -1,0 +1,43 @@
+[{
+  "_id": {
+    "$oid": "6ac7686a60684664de846649"
+  },
+  "email": "admin@example.com",
+  "passwordHash": "$2b$12$58Ioe3BTuBRZtLciTL7P7O0Xz.1bthrsK5UoOUsE7MMKi4hQICefS",
+  "role": "Admin",
+  "permissions": [],
+  "isTwoFactorEnabled": true,
+  "twoFactorMethod": "EMAIL",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-10-08T09:54:50.735Z"
+  },
+  "updatedAt": {
+    "$date": "2026-10-08T11:09:17.489Z"
+  },
+  "__v": 0,
+  "authOtp": "6f5cdb9028908327cfe4f8a21ae3552fa3354566c3800476ffec8eb3ef8e19db",
+  "authOtpExpires": {
+    "$date": "2026-10-08T11:19:17.489Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6ac7802da2c37193b6ea56f9"
+  },
+  "username": "saikat",
+  "email": "jacky.pouros22@ethereal.email",
+  "passwordHash": "$2b$12$QeUu.WN3ctt/Zo83QmwIC.4XN9fcx2CYrbTOyv2VFMujs1knfaPBq",
+  "role": "Admin",
+  "permissions": [],
+  "isTwoFactorEnabled": true,
+  "twoFactorMethod": "EMAIL",
+  "isActive": true,
+  "createdAt": {
+    "$date": "2026-10-08T11:36:13.389Z"
+  },
+  "updatedAt": {
+    "$date": "2026-10-08T13:51:21.914Z"
+  },
+  "__v": 0
+}]

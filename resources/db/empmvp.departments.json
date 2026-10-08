@@ -1,0 +1,14 @@
+[{
+  "_id": {
+    "$oid": "6ac7686a32deb9215ca1f3e0"
+  },
+  "name": "Engineering",
+  "__v": 0,
+  "budgetCode": "ENG-101",
+  "createdAt": {
+    "$date": "2026-10-08T09:54:50.454Z"
+  },
+  "updatedAt": {
+    "$date": "2026-10-08T09:54:50.454Z"
+  }
+}]

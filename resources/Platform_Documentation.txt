@@ -1,0 +1,2295 @@
+build a modern web application from the ground up. The goal is to develop a reliable, scalable MVP with a clean user experience and well-structured backend. 
+
+User prompt: Create a project structure based on mongoDB Data base, mern stack using react vite bootstrapcss, nodejs , RESIAPI and each pert having individual module with seperate component for realistic employee menegement with proper seesion handling to maintan MVP architecture and it will supported in clould based apps follow the project component is given below ### Project Scope The application will include: - User registration, login, and profile management - User dashboard - Admin dashboard - Core application workflows and business logic - Search, filtering, and data management - Forms and user input validation - Notifications and email integrations - REST APIs - Database design and integration - Third-party API integrations - Responsive frontend for desktop and mobile - Basic reporting and analytics - Deployment and production setup
+
+Response: Here is a production-ready, highly scalable project structure for an Employee Management System using the MERN stack (MongoDB, Express, React+Vite, Node.js).
+
+To satisfy your requirement for MVP (Model-View-Presenter) architecture and individual modularity, this structure uses a Domain-Driven Design (DDD) approach. Both the backend and frontend are separated by feature modules, ensuring isolated business logic, components, and workflows that are easy to deploy to cloud providers (AWS, GCP, Vercel, Render).
+
+Root Project Directory
+
+The project is split into a monorepo style with separate backend and frontend environments for independent scaling.
+
+employee-management-system/
+├── backend/                  # Node.js, Express, MongoDB REST API
+├── frontend/                 # React.js (Vite), Bootstrap CSS
+├── docker-compose.yml        # For local containerized testing & cloud deployment
+├── .gitignore
+└── README.md
+
+
+1. Backend Structure (Node.js + Express + MongoDB)
+
+The backend follows the MVP/Controller pattern where:
+
+Model: MongoDB Schemas (Data layer).
+
+Presenter/Controller: Handles business logic, input validation, and formatting.
+
+Routes: Directs the REST API traffic.
+
+backend/
+├── src/
+│   ├── config/                   # Global configurations
+│   │   ├── db.js                 # MongoDB connection setup
+│   │   ├── cloud.js              # Cloud storage setup (AWS S3 / Cloudinary for avatars)
+│   │   └── mailer.js             # 3rd-party Email Integration (SendGrid/Nodemailer)
+│   │
+│   ├── middleware/               # System-wide interceptors
+│   │   ├── auth.middleware.js    # JWT Session & HTTP-only cookie validation
+│   │   ├── role.middleware.js    # RBAC (Admin vs User access)
+│   │   ├── error.middleware.js   # Global error handling & formatting
+│   │   └── upload.middleware.js  # File upload handling (Multer)
+│   │
+│   ├── modules/                  # 📦 INDIVIDUAL MODULES (Core Business Logic)
+│   │   ├── auth/
+│   │   │   ├── auth.controller.js  # Login, Register, Session handling
+│   │   │   ├── auth.routes.js      # /api/auth/...
+│   │   │   └── auth.validation.js  # Joi/Zod schema validations
+│   │   │
+│   │   ├── users/                  # Profile & User Management
+│   │   │   ├── user.model.js
+│   │   │   ├── user.controller.js
+│   │   │   └── user.routes.js      
+│   │   │
+│   │   ├── employees/              # Core Application Workflows
+│   │   │   ├── employee.model.js
+│   │   │   ├── employee.controller.js # CRUD, Search, Filter logic
+│   │   │   └── employee.routes.js
+│   │   │
+│   │   ├── notifications/          # Notifications & Email Integration
+│   │   │   ├── notification.model.js
+│   │   │   ├── notification.service.js # Logic to trigger emails/in-app alerts
+│   │   │   └── notification.routes.js
+│   │   │
+│   │   └── reports/                # Reporting and Analytics
+│   │       └── report.controller.js  # Aggregation pipelines for dashboards
+│   │
+│   ├── utils/                    # Reusable helpers
+│   │   ├── apiResponse.js        # Standardized JSON response format
+│   │   └── jwtToken.js           # Token generation/verification logic
+│   │
+│   ├── app.js                    # Express app initialization & middleware chaining
+│   └── server.js                 # Entry point, Server & DB startup
+│
+├── .env                          # Environment variables (DB_URI, JWT_SECRET)
+└── package.json
+
+
+2. Frontend Structure (React + Vite + Bootstrap)
+
+The frontend maps directly to the backend modules. By utilizing a feature-based architecture, every functional part of the app has its own components, pages, and API service files.
+
+frontend/
+├── public/                       # Static assets
+├── src/
+│   ├── assets/                   # Images, SVGs, custom icons
+│   │
+│   ├── config/                   # API configs
+│   │   └── axiosInstance.js      # Interceptors for attaching JWTs & handling 401s
+│   │
+│   ├── context/                  # Global State / Proper Session Handling
+│   │   ├── AuthContext.jsx       # Manages user session state globally
+│   │   └── ThemeContext.jsx      # Light/Dark mode toggles
+│   │
+│   ├── components/               # 🧩 SHARED UI COMPONENTS (Bootstrap-based)
+│   │   ├── layout/               # Navbar, Sidebar, Footer, MainLayout
+│   │   ├── form/                 # Reusable inputs, selects, error messages
+│   │   └── ui/                   # Modals, Badges, Loaders, Toasts, DataTables
+│   │
+│   ├── modules/                  # 📦 INDIVIDUAL FEATURE MODULES
+│   │   ├── auth/
+│   │   │   ├── components/       # LoginForm, RegisterForm
+│   │   │   ├── pages/            # LoginPage, RegisterPage
+│   │   │   └── auth.service.js   # API calls to /api/auth
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── components/       # MetricCards, ActivityFeed, Charts
+│   │   │   ├── pages/            
+│   │   │   │   ├── AdminDashboard.jsx
+│   │   │   │   └── UserDashboard.jsx
+│   │   │   └── dashboard.service.js
+│   │   │
+│   │   ├── employees/            # Data Management, Search & Filter
+│   │   │   ├── components/       # EmployeeForm, SearchBar, FilterSidebar
+│   │   │   ├── pages/            # EmployeeDirectory, EmployeeDetail
+│   │   │   └── employee.service.js
+│   │   │
+│   │   └── profile/
+│   │       ├── components/       # AvatarUpload, PasswordChange
+│   │       └── pages/            # ProfileSettings
+│   │
+│   ├── router/                   # Routing Logic
+│   │   ├── AppRoutes.jsx         # Main route definitions
+│   │   ├── PrivateRoute.jsx      # Protects standard user routes
+│   │   └── AdminRoute.jsx        # Protects admin-only routes
+│   │
+│   ├── styles/                   # Custom Bootstrap overrides
+│   │   ├── custom-bootstrap.scss # Overriding Bootstrap variables
+│   │   └── global.css
+│   │
+│   ├── App.jsx                   # Root component
+│   └── main.jsx                  # Vite mount point
+│
+├── index.html
+├── vite.config.js                # Vite config (proxy setup for backend)
+└── package.json
+
+
+How this Architecture Meets Your Requirements
+
+MVP Architecture & Modularity: By placing logic inside /modules/employees/, the UI (View) handles layout, the .service.js and Backend Controllers act as the Presenter, and MongoDB acts as the Model. Everything is strictly encapsulated.
+
+Proper Session Handling: Instead of basic local storage, session handling is designed around AuthContext on the frontend and auth.middleware.js on the backend. Best Practice: Use HTTP-Only cookies for JWTs to prevent XSS attacks, with short-lived access tokens and longer-lived refresh tokens.
+
+Forms and Validation: The frontend form/ components should integrate with React Hook Form + Yup/Zod for instant client-side validation. The backend uses auth.validation.js to ensure bad data never hits the database.
+
+Search, Filtering, and Data Management: The employees frontend module contains specific SearchBar and FilterSidebar components. These pass query parameters (e.g., ?department=IT&role=Manager) via Axios to the backend employee.controller.js which executes Mongoose aggregation queries.
+
+Responsive Frontend: Relying on Bootstrap CSS (imported and customized via custom-bootstrap.scss), the UI components (/components/ui and /components/layout) will utilize grid systems and flexbox to instantly adapt from desktop admin panels to mobile views.
+
+Cloud & Deployment Ready: The root directory includes a docker-compose.yml. This allows you to containerize the Node.js backend, React frontend, and a local Redis/MongoDB instance. For production, the frontend is built natively by Vite (npm run build) for static hosting (Vercel/Netlify), while the backend module is isolated for deploying to cloud environments like AWS ECS, EC2, or Heroku.
+
+
+
+User prompt: give the deployment and implementation structure with proper srs with database schema, erd,dfd etc and maintain the erd to develop the project that will be live in public
+
+Response: Here is the complete implementation blueprint, database design, and cloud deployment architecture for launching the MERN-based Employee Management System to the public.
+
+
+
+We need someone who can handle both frontend and backend development and take ownership of the implementation from development through deployment.
+
+1. Public Deployment & Implementation Structure
+
+To make the application live, scalable, and secure, the decoupled MERN architecture is deployed across specialized cloud services rather than a single server.
+
+Frontend (React + Vite): Deployed on Vercel or AWS Amplify. These platforms provide a global CDN (Content Delivery Network), ensuring the React static files load instantly worldwide. They automatically rebuild the UI whenever code is pushed to the main branch.
+
+Backend (Node.js + Express): Deployed on AWS Elastic Beanstalk, Render, or DigitalOcean App Platform. The Node API is containerized using Docker (as defined in the previous docker-compose.yml) to ensure it runs identically in production. Auto-scaling is enabled to spin up more API instances during high traffic.
+
+Database (MongoDB): Hosted on MongoDB Atlas (AWS/GCP backed). This provides automated backups, end-to-end encryption, and visual data management without needing to manage database servers manually.
+
+Asset Storage: AWS S3 or Cloudinary is used to store employee avatars and uploaded document PDFs, keeping the Node.js server stateless and lightweight.
+
+Security & DNS: Cloudflare sits in front of the domain to provide SSL/TLS encryption (HTTPS), DDoS protection, and WAF (Web Application Firewall) rules.
+
+2. Software Requirements Specification (SRS) - MVP Public Release
+
+2.1 Non-Functional Requirements
+
+Performance: API response time must be under 300ms for 95% of requests.
+
+Scalability: System must handle up to 500 concurrent authenticated users.
+
+Availability: 99.9% uptime SLA, achieved via AWS auto-scaling and MongoDB Atlas replica sets.
+
+Security: Passwords must be hashed via bcrypt. All REST endpoints except /api/auth/login must require a valid JWT passed in an HTTP-Only cookie.
+
+2.2 Functional Requirements
+
+Auth Module: System must lock out users after 5 failed login attempts for 15 minutes.
+
+RBAC Module: Admin role can create/delete employees; User role can only view directories and edit their own profile.
+
+Employee Module: System must support complex filtering (e.g., search by name, filter by department, sort by hire date).
+
+Notifications: System must trigger an automated email via SendGrid when a new employee account is provisioned.
+
+3. Database Schema Design (MongoDB)
+
+Because MongoDB is NoSQL, data is stored in collections of JSON-like documents. We maintain relations using Mongoose ObjectId references.
+
+
+
+Collection
+
+Key Fields & Data Types
+
+Relationships
+
+Users
+
+_id (ObjectId)
+
+
+
+email (String, Unique)
+
+
+
+passwordHash (String)
+
+
+
+role (Enum: 'Admin', 'User')
+
+
+
+isActive (Boolean)
+
+1-to-1 with Employees
+
+Employees
+
+_id (ObjectId)
+
+
+
+userId (ObjectId, Ref: 'Users')
+
+
+
+firstName, lastName (String)
+
+
+
+phone (String)
+
+
+
+departmentId (ObjectId, Ref: 'Departments')
+
+
+
+managerId (ObjectId, Ref: 'Employees')
+
+1-to-1 with Users
+
+
+
+Many-to-1 with Departments
+
+
+
+Many-to-1 with Employees (Self-referencing for managers)
+
+Departments
+
+_id (ObjectId)
+
+
+
+name (String, Unique)
+
+
+
+budgetCode (String)
+
+1-to-Many with Employees
+
+AttendanceLogs
+
+_id (ObjectId)
+
+
+
+employeeId (ObjectId, Ref: 'Employees')
+
+
+
+date (Date)
+
+
+
+status (Enum: 'Present', 'Absent', 'Leave')
+
+Many-to-1 with Employees
+
+4. Entity-Relationship Diagram (ERD)
+
+This represents the logical data structure and how the models connect in your Mongoose backend.
+
+[ USERS ] 1 ──────────── 1 [ EMPLOYEES ]
+  - _id (PK)                 - _id (PK)
+  - email                    - userId (FK -> Users._id)
+  - password                 - departmentId (FK -> Departments._id)
+  - role                     - managerId (FK -> Employees._id)
+                             - firstName
+                             - lastName
+                                   │
+                                   │ ∞
+                                   │
+[ DEPARTMENTS ] 1 ───────── ∞ [ ATTENDANCE_LOGS ]
+  - _id (PK)                   - _id (PK)
+  - name                       - employeeId (FK -> Employees._id)
+  - budgetCode                 - date
+                               - status
+
+
+Note: Even though MongoDB is document-based, designing it with this ERD mindset ensures normalized data, preventing massive duplication for the MVP.
+
+5. Data Flow Diagram (DFD)
+
+Level 0 (Context Diagram)
+
+Shows the system's interaction with external entities.
+
+[ HR Admin / Employee ] ───(Web Requests/JSON)───> [ SYSTEM: MERN Employee Manager ]
+                                                              │
+[ SendGrid API ] <───(Email Triggers)─────────────────────────┤
+                                                              │
+[ MongoDB Atlas ] <───(BSON Read/Writes)──────────────────────┘
+
+
+Level 1 (Core Process Flow)
+
+Breaks down the system into the primary backend controllers.
+
+Authentication Flow:
+
+User submits Credentials -> Auth Controller -> Validates against Users DB.
+
+Success -> Generates JWT -> Sets HTTP-Only Cookie in User's Browser.
+
+Employee Management Flow (Admin):
+
+Admin submits Employee Data -> Employee Controller -> Validates payload (Joi/Zod).
+
+Controller writes to Users DB (creates login) AND Employees DB (creates profile).
+
+Controller sends event to Notification Service -> Triggers welcome email to new hire.
+
+Data Retrieval Flow (User):
+
+User requests Directory -> Employee Controller -> Queries Employees DB with .populate('departmentId').
+
+Controller formats JSON -> Returns to React Frontend for UI rendering.
+
+
+
+User prompt: Can you generate the exact Mongoose schema files for the Users, Employees, and Departments models based on this ERD?
+
+Response: These schemas are designed for production, incorporating Mongoose best practices like automatic timestamps, indexing for faster queries, and strict referencing to maintain the integrity of the relationships outlined in the ERD.
+
+1. User Model (backend/src/modules/users/user.model.js)
+
+This schema manages authentication data and access levels. By keeping it separate from the Employee profile, you ensure that authentication logic remains isolated.
+
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true, // Indexed for faster login lookups
+    },
+    passwordHash: {
+      type: String,
+      required: [true, 'Password is required'],
+      select: false, // Ensures password isn't accidentally returned in API queries
+    },
+    role: {
+      type: String,
+      enum: ['Admin', 'User'],
+      default: 'User',
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true, // Automatically adds createdAt and updatedAt fields
+  }
+);
+
+const User = mongoose.model('User', userSchema);
+export default User;
+
+
+2. Department Model (backend/src/modules/departments/department.model.js)
+
+This schema holds company structure data. It must be created before assigning employees to ensure the departmentId reference is valid.
+
+import mongoose from 'mongoose';
+
+const departmentSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Department name is required'],
+      unique: true,
+      trim: true,
+    },
+    budgetCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Department = mongoose.model('Department', departmentSchema);
+export default Department;
+
+
+3. Employee Model (backend/src/modules/employees/employee.model.js)
+
+This schema acts as the core business profile. It uses Mongoose populate capabilities to pull in User, Department, and Manager data on the fly.
+
+import mongoose from 'mongoose';
+
+const employeeSchema = new mongoose.Schema(
+  {
+    // 1-to-1 Relationship with User (Authentication)
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true, 
+    },
+    firstName: {
+      type: String,
+      required: [true, 'First name is required'],
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: [true, 'Last name is required'],
+      trim: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    // Many-to-1 Relationship with Department
+    departmentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: true,
+      index: true, // Indexed because we will frequently filter by department
+    },
+    // Many-to-1 Self-Referencing Relationship (Manager)
+    managerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Employee',
+      default: null, // Null indicates the employee has no manager (e.g., CEO)
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Virtual field to get full name easily in the application
+employeeSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+
+// Ensure virtual fields are included when converting the document to JSON
+employeeSchema.set('toJSON', { virtuals: true });
+employeeSchema.set('toObject', { virtuals: true });
+
+const Employee = mongoose.model('Employee', employeeSchema);
+export default Employee;
+
+
+
+
+User prompt: go for all
+
+Response: Here are the complete, production-ready controllers for both Authentication and Employee Management.
+
+These controllers implement secure password handling, JWT cookie sessions, database transactions (to ensure User and Employee records stay synced), and advanced Mongoose querying.
+
+1. Auth Controller (backend/src/modules/auth/auth.controller.js)
+
+This controller manages secure access. Instead of sending the JWT in the JSON body (which is vulnerable to Cross-Site Scripting), it attaches the token to an httpOnly cookie.
+
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import User from '../users/user.model.js';
+
+/**
+ * @desc    Authenticate user & get token
+ * @route   POST /api/auth/login
+ * @access  Public
+ */
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Check if user exists (explicitly select password field since it's hidden by default)
+    const user = await User.findOne({ email }).select('+passwordHash');
+    if (!user || !user.isActive) {
+      return res.status(401).json({ message: 'Invalid credentials or inactive account' });
+    }
+
+    // 2. Verify password
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // 3. Generate JWT
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    // 4. Set HTTP-Only Cookie
+    res.cookie('token', token, {
+      httpOnly: true, // Prevents client-side JS from reading the cookie (XSS protection)
+      secure: process.env.NODE_ENV === 'production', // Requires HTTPS in production
+      sameSite: 'strict', // CSRF protection
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    });
+
+    // Remove password from response
+    user.passwordHash = undefined;
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during login', error: error.message });
+  }
+};
+
+/**
+ * @desc    Logout user & clear cookie
+ * @route   POST /api/auth/logout
+ * @access  Private
+ */
+export const logout = async (req, res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    expires: new Date(0), // Instantly expires the cookie
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+};
+
+
+2. Employee Controller (backend/src/modules/employees/employee.controller.js)
+
+This controller handles the core business logic. The createEmployee function uses MongoDB Transactions to guarantee that if the Employee profile fails to save, the User authentication account is rolled back, preventing orphaned data.
+
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import Employee from './employee.model.js';
+import User from '../users/user.model.js';
+
+/**
+ * @desc    Create a new employee (Admin only)
+ * @route   POST /api/employees
+ * @access  Private/Admin
+ */
+export const createEmployee = async (req, res) => {
+  // Start a transaction session
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { email, password, role, firstName, lastName, phone, departmentId, managerId } = req.body;
+
+    // 1. Check if user email already exists
+    const existingUser = await User.findOne({ email }).session(session);
+    if (existingUser) {
+      throw new Error('Email is already registered');
+    }
+
+    // 2. Hash the initial password
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // 3. Create the User record (Auth entity)
+    const [newUser] = await User.create([{ email, passwordHash, role }], { session });
+
+    // 4. Create the Employee record (Profile entity) linked to the User
+    const [newEmployee] = await Employee.create([{
+      userId: newUser._id,
+      firstName,
+      lastName,
+      phone,
+      departmentId,
+      managerId: managerId || null
+    }], { session });
+
+    // 5. Commit the transaction (Saves both to DB simultaneously)
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json({
+      message: 'Employee provisioned successfully',
+      employee: newEmployee
+    });
+
+  } catch (error) {
+    // If anything fails, abort the transaction so no partial data is saved
+    await session.abortTransaction();
+    session.endSession();
+    res.status(400).json({ message: 'Failed to create employee', error: error.message });
+  }
+};
+
+/**
+ * @desc    Get all employees with filtering, searching, and populating
+ * @route   GET /api/employees
+ * @access  Private
+ */
+export const getEmployees = async (req, res) => {
+  try {
+    const { search, department, managerId } = req.query;
+    
+    // Build dynamic query object based on frontend filters
+    const query = {};
+
+    if (department) {
+      query.departmentId = department;
+    }
+    
+    if (managerId) {
+      query.managerId = managerId;
+    }
+
+    if (search) {
+      // Allow searching by first or last name using regex
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } }, // 'i' makes it case-insensitive
+        { lastName: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Execute query and populate related department and manager names
+    const employees = await Employee.find(query)
+      .populate('departmentId', 'name budgetCode') // Only fetch department name and budget code
+      .populate('managerId', 'firstName lastName') // Only fetch manager's name
+      .populate('userId', 'email role isActive') // Fetch auth details
+      .sort({ lastName: 1 }); // Alphabetical sort by last name
+
+    res.status(200).json({
+      count: employees.length,
+      data: employees
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching employees', error: error.message });
+  }
+};
+
+
+
+
+User prompt: Can you provide the Auth and RBAC middleware that will protect these routes and extract the JWT cookie?
+
+Response: These middleware functions intercept incoming requests, extract the JWT from the HTTP-only cookie, and verify the user's identity and permissions before allowing them to reach your controllers.
+
+1. Authentication Middleware (backend/src/middleware/auth.middleware.js)
+
+This middleware verifies the JWT and attaches the full user object to the req object. It also acts as a security check to ensure the user hasn't been deactivated or deleted since the token was issued.
+
+import jwt from 'jsonwebtoken';
+import User from '../modules/users/user.model.js';
+
+export const protectRoute = async (req, res, next) => {
+  try {
+    // Extract token from the httpOnly cookie
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: 'Access denied. No token provided.' });
+    }
+
+    // Verify token validity and expiration
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Fetch the user from the database to ensure they still exist and are active
+    const currentUser = await User.findById(decoded.userId);
+    
+    if (!currentUser) {
+      return res.status(401).json({ message: 'The user belonging to this token no longer exists.' });
+    }
+
+    if (!currentUser.isActive) {
+      return res.status(403).json({ message: 'This account has been deactivated.' });
+    }
+
+    // Attach user to the request object for use in downstream controllers
+    req.user = currentUser;
+    next();
+    
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Session expired. Please log in again.' });
+    }
+    return res.status(401).json({ message: 'Invalid token.', error: error.message });
+  }
+};
+
+
+2. Role-Based Access Control (RBAC) Middleware (backend/src/middleware/role.middleware.js)
+
+This middleware is executed after the authentication middleware. It checks if the authenticated user's role matches the roles allowed to access the specific route.
+
+export const restrictTo = (...allowedRoles) => {
+  return (req, res, next) => {
+    // req.user is populated by the protectRoute middleware
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Forbidden: Your role (${req.user.role}) lacks permissions for this action.` 
+      });
+    }
+    
+    next();
+  };
+};
+
+
+How to Apply Them in Your Routes
+
+Here is how you chain these middlewares inside your route definitions (backend/src/modules/employees/employee.routes.js) to secure the endpoints:
+
+import express from 'express';
+import { createEmployee, getEmployees } from './employee.controller.js';
+import { protectRoute } from '../../middleware/auth.middleware.js';
+import { restrictTo } from '../../middleware/role.middleware.js';
+
+const router = express.Router();
+
+// Apply protectRoute to all employee endpoints so only logged-in users can access them
+router.use(protectRoute);
+
+// Standard users can view the directory, but only Admins can create new employees
+router.route('/')
+  .get(getEmployees) // Any authenticated user can access
+  .post(restrictTo('Admin'), createEmployee); // Blocked for standard users
+
+export default router;
+
+
+Important Configuration Note: For req.cookies.token to successfully extract the cookie, your Express app must use the cookie-parser package. Ensure your app.js includes:
+
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
+
+
+
+
+User prompt: How do I configure my React Vite frontend and Axios instance to ensure these HTTP-only cookies are sent back to the API on every request?
+
+Response: To successfully pass HTTP-only cookies back and forth between a decoupled React frontend and a Node API, you must explicitly tell Axios to attach credentials to every request. By default, browsers block cookies on cross-origin requests for security.
+
+Here is the complete configuration required across your Axios instance, Vite dev server, and Express backend.
+
+1. Configure the Axios Instance (Frontend)
+
+Instead of importing axios directly in your components, create a centralized instance. The critical setting here is withCredentials: true.
+
+Create frontend/src/config/axiosInstance.js:
+
+import axios from 'axios';
+
+// Create a customized Axios instance
+const apiClient = axios.create({
+  // If using the Vite proxy (step 2), this can just be '/api'
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  
+  // CRITICAL: This tells the browser to include the HTTP-Only cookie in the request
+  withCredentials: true,
+  
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Response Interceptor: Globally handle expired sessions
+apiClient.interceptors.response.use(
+  (response) => {
+    // Return successful responses unmodified
+    return response;
+  },
+  (error) => {
+    // If the backend returns a 401 Unauthorized (e.g., token expired or invalid)
+    if (error.response && error.response.status === 401) {
+      // Clear local user state and redirect to login
+      // Note: You might want to integrate this with your AuthContext
+      console.warn('Session expired. Redirecting to login.');
+      window.location.href = '/login'; 
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
+
+
+How to use it in your service files:
+
+import apiClient from '../config/axiosInstance';
+
+export const getEmployees = async () => {
+  // No need to manually attach a token; the browser sends the cookie automatically
+  const response = await apiClient.get('/employees'); 
+  return response.data;
+};
+
+
+2. Configure Vite Proxy for Local Development (Frontend)
+
+During local development, your frontend runs on a different port (e.g., 5173) than your backend (e.g., 5000). This triggers strict CORS (Cross-Origin Resource Sharing) browser policies.
+
+To bypass CORS locally and make your frontend act like it's on the same domain as your backend, set up a proxy in frontend/vite.config.js:
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      // Any request starting with /api will be forwarded to your Node server
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+});
+
+
+3. Configure CORS in Express (Backend)
+
+For production (or if you bypass the Vite proxy), your backend must be explicitly configured to accept credentials. A standard app.use(cors()) will fail because it does not allow credentials by default.
+
+In your backend/src/app.js:
+
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
+const app = express();
+
+// 1. CORS MUST be configured exactly like this for cookies to work
+app.use(
+  cors({
+    // You CANNOT use '*' when credentials are true. You must specify the exact origin.
+    origin: process.env.CLIENT_URL || 'http://localhost:5173', 
+    credentials: true, // CRITICAL: Allows the server to accept the incoming cookie
+  })
+);
+
+// 2. Required to parse the incoming Cookie header into req.cookies
+app.use(cookieParser());
+app.use(express.json());
+
+// Routes...
+// app.use('/api/auth', authRoutes);
+
+
+
+
+User prompt: How do I build the React AuthContext to securely manage the user's logged-in state across the app using this Axios instance?
+
+Response: To manage state securely when using HTTP-only cookies, the React frontend cannot read the JWT from local storage. Instead, the AuthContext must ping the backend when the application first loads to verify if the cookie is still valid, and then keep the user's profile in memory.
+
+Here is the complete implementation for your React frontend.
+
+1. The Backend Prerequisite (The /me Route)
+
+Because the frontend cannot decode the HTTP-only cookie, the backend needs a lightweight route to return the current user's profile if the cookie is valid.
+
+Add this to your backend auth.controller.js and auth.routes.js:
+
+// backend/src/modules/auth/auth.controller.js
+export const getMe = async (req, res) => {
+  // req.user is already fetched and verified by the protectRoute middleware
+  res.status(200).json({
+    id: req.user._id,
+    email: req.user.email,
+    role: req.user.role,
+  });
+};
+
+// backend/src/modules/auth/auth.routes.js
+// GET /api/auth/me -> router.get('/me', protectRoute, getMe);
+
+
+2. The AuthContext Implementation
+
+This file creates the Context, the Provider component, and a custom useAuth hook for easy consumption across your application.
+
+Create frontend/src/context/AuthContext.jsx:
+
+import { createContext, useState, useEffect, useContext } from 'react';
+import apiClient from '../config/axiosInstance';
+
+// 1. Create the context
+const AuthContext = createContext();
+
+// 2. Create the Provider component
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Prevents rendering protected routes before checking session
+
+  // Check if user is logged in when the app first loads or refreshes
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await apiClient.get('/auth/me');
+        setUser(response.data);
+      } catch (error) {
+        // If 401 Unauthorized, the user is not logged in or cookie expired
+        setUser(null);
+      } finally {
+        setLoading(false); // App is ready to render
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
+  // Login action
+  const login = async (email, password) => {
+    const response = await apiClient.post('/auth/login', { email, password });
+    setUser(response.data.user);
+    return response.data; // Return data so the UI can show success messages
+  };
+
+  // Logout action
+  const logout = async () => {
+    await apiClient.post('/auth/logout');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, logout }}>
+      {/* Do not render children (the app) until we know the auth status */}
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+};
+
+// 3. Custom Hook for easy importing
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+
+3. Wrap Your Application
+
+To make the context available globally, wrap your root component.
+
+Update frontend/src/main.jsx:
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+// Import your custom Bootstrap styles here
+import './styles/custom-bootstrap.scss'; 
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+
+4. How to Consume it in a Component
+
+Now, any component or page in your MVP can instantly access the user's state or trigger a login/logout without prop-drilling.
+
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const LoginForm = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate('/dashboard'); // Redirect on success
+    } catch (error) {
+      console.error('Login failed:', error.response?.data?.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Bootstrap form inputs here */}
+      <button type="submit" className="btn btn-primary">Login</button>
+    </form>
+  );
+};
+
+export default LoginForm;
+
+
+
+
+User prompt: How do I build the PrivateRoute and AdminRoute components to protect my React pages using this AuthContext?
+
+Response: Using React Router v6, route protection is handled cleanly using wrapper components. These components consume your AuthContext and decide whether to render the requested page (via the <Outlet/> component) or redirect the user elsewhere.
+
+Here is how to build and implement both the PrivateRoute and AdminRoute.
+
+1. Build the PrivateRoute Component
+
+This component ensures that only logged-in users can access standard application routes like their profile or the employee directory.
+
+Create frontend/src/router/PrivateRoute.jsx:
+
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const PrivateRoute = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // If the user is logged in, render the child routes (Outlet)
+  // If not, redirect to login and save the location they were trying to access
+  return isAuthenticated ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
+};
+
+export default PrivateRoute;
+
+
+2. Build the AdminRoute Component
+
+This component adds a second layer of checks. It ensures the user is both logged in and holds the 'Admin' role before granting access to sensitive routes like employee creation or system analytics.
+
+Create frontend/src/router/AdminRoute.jsx:
+
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const AdminRoute = () => {
+  const { isAuthenticated, user } = useAuth();
+
+  // If not logged in, boot them to the login page
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If logged in but NOT an Admin, boot them to the standard dashboard
+  if (user?.role !== 'Admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // If both checks pass, render the protected admin routes
+  return <Outlet />;
+};
+
+export default AdminRoute;
+
+
+3. Apply the Route Guards
+
+Now, assemble your application's routing structure. By utilizing React Router's nested routes, you can apply these guards to multiple pages at once.
+
+Create frontend/src/router/AppRoutes.jsx:
+
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+// Route Guards
+import PrivateRoute from './PrivateRoute';
+import AdminRoute from './AdminRoute';
+
+// Mock imports for your pages
+import LoginPage from '../modules/auth/pages/LoginPage';
+import UserDashboard from '../modules/dashboard/pages/UserDashboard';
+import AdminDashboard from '../modules/dashboard/pages/AdminDashboard';
+import EmployeeDirectory from '../modules/employees/pages/EmployeeDirectory';
+import MainLayout from '../components/layout/MainLayout'; // Includes Navbar & Sidebar
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      
+      {/* Redirect root to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Protected Standard User Routes */}
+      <Route element={<PrivateRoute />}>
+        {/* Wrap protected routes in a common layout (e.g., Navbar & Sidebar) */}
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/employees" element={<EmployeeDirectory />} />
+          {/* Add user profile routes here */}
+        </Route>
+      </Route>
+
+      {/* Protected Admin-Only Routes */}
+      <Route element={<AdminRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          {/* Add employee creation/management routes here */}
+        </Route>
+      </Route>
+
+      {/* Fallback 404 Route */}
+      <Route path="*" element={
+        <div className="container text-center mt-5">
+          <h2>404 - Page Not Found</h2>
+        </div>
+      } />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
+
+
+Finally, update App.jsx to render this routing tree:
+
+import AppRoutes from './router/AppRoutes';
+
+function App() {
+  return (
+    <div className="app-container">
+      <AppRoutes />
+    </div>
+  );
+}
+
+export default App;
+
+
+
+
+User prompt: How do I build the MainLayout component with a responsive Bootstrap Navbar and Sidebar that dynamically renders links based on the user's role?
+
+Response: To build a robust, responsive dashboard layout, we will split the layout into three modular components: Sidebar, Topbar, and MainLayout.
+
+This approach uses Bootstrap 5 utility classes for layout, react-router-dom's <NavLink> for automatic active state styling, and the AuthContext to filter navigation links dynamically based on the user's role.
+
+1. The Sidebar Component
+
+This component defines the navigation array and filters it before rendering. It stays pinned to the left on desktop screens and can be hidden on mobile.
+
+Create frontend/src/components/layout/Sidebar.jsx:
+
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+const Sidebar = () => {
+  const { user } = useAuth();
+
+  // Define all available routes and the roles permitted to see them
+  const navItems = [
+    { name: 'My Dashboard', path: '/dashboard', roles: ['User', 'Admin'], icon: 'bi-house' },
+    { name: 'Directory', path: '/employees', roles: ['User', 'Admin'], icon: 'bi-people' },
+    { name: 'System Analytics', path: '/admin/dashboard', roles: ['Admin'], icon: 'bi-graph-up' },
+    { name: 'Manage Users', path: '/admin/users', roles: ['Admin'], icon: 'bi-shield-lock' },
+  ];
+
+  // Filter links based on the current user's role
+  const permittedLinks = navItems.filter((item) => item.roles.includes(user?.role));
+
+  return (
+    <div 
+      className="d-flex flex-column flex-shrink-0 p-3 bg-dark text-white d-none d-md-flex" 
+      style={{ width: '250px', height: '100vh' }}
+    >
+      <div className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <span className="fs-4 fw-bold">EMS Portal</span>
+      </div>
+      <hr />
+      <ul className="nav nav-pills flex-column mb-auto">
+        {permittedLinks.map((link) => (
+          <li className="nav-item mb-1" key={link.path}>
+            <NavLink 
+              to={link.path} 
+              // react-router-dom automatically passes isActive to the className function
+              className={({ isActive }) => `nav-link text-white ${isActive ? 'bg-primary' : ''}`}
+            >
+              <i className={`bi ${link.icon} me-2`}></i>
+              {link.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+      <hr />
+      <div className="small text-secondary">
+        Logged in as: <br/>
+        <span className="text-white fw-semibold">{user?.email}</span>
+        <span className="badge bg-secondary ms-2">{user?.role}</span>
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
+
+
+2. The Topbar Component
+
+The Topbar provides mobile navigation (hamburger menu) and a user dropdown for logging out.
+
+Create frontend/src/components/layout/Topbar.jsx:
+
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const Topbar = () => {
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-3">
+      <div className="container-fluid">
+        {/* Mobile Toggle Button (Visible only on small screens) */}
+        <button className="navbar-toggler d-md-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        {/* Dashboard Title */}
+        <span className="navbar-brand mb-0 h1">Dashboard</span>
+
+        {/* User Dropdown */}
+        <div className="ms-auto">
+          <div className="dropdown">
+            <button className="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <i className="bi bi-person-circle me-2"></i>
+              {user?.role === 'Admin' ? 'Admin Portal' : 'My Account'}
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><button className="dropdown-item" onClick={() => navigate('/profile')}>Profile Settings</button></li>
+              <li><hr className="dropdown-divider" /></li>
+              <li><button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Topbar;
+
+
+3. The MainLayout Wrapper
+
+This component stitches the Sidebar, Topbar, and dynamic page content (<Outlet/>) together using a full-viewport flexbox layout.
+
+Create frontend/src/components/layout/MainLayout.jsx:
+
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Topbar from './Topbar';
+
+const MainLayout = () => {
+  return (
+    <div className="d-flex vh-100 bg-light overflow-hidden">
+      {/* Desktop Sidebar */}
+      <Sidebar />
+
+      {/* Main Content Area */}
+      <div className="d-flex flex-column flex-grow-1 w-100 overflow-hidden">
+        <Topbar />
+        
+        {/* The Outlet renders whatever page is currently active in the router */}
+        <main className="flex-grow-1 overflow-auto p-4">
+          <Outlet />
+        </main>
+      </div>
+
+      {/* Mobile Offcanvas Sidebar (For responsive view) */}
+      <div className="offcanvas offcanvas-start bg-dark text-white" tabIndex="-1" id="mobileSidebar">
+        <div className="offcanvas-header border-bottom border-secondary">
+          <h5 className="offcanvas-title">EMS Portal</h5>
+          <button type="button" className="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div className="offcanvas-body p-0">
+          {/* We reuse the Sidebar component logic, just wrapping it in the offcanvas */}
+          <Sidebar />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MainLayout;
+
+
+Note on Icons: This layout uses Bootstrap Icons. To ensure they render, add the CDN link to your frontend/index.html inside the <head> tag: <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css](https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css)">
+
+
+
+User prompt: How do I build the Employee Directory page that fetches the employee list from the backend API and displays it in a responsive Bootstrap data table?
+
+Response: To build the Employee Directory, we will split the logic into two parts: a service file to handle the API request, and a React page component to manage the state and render the Bootstrap table.
+
+1. Create the Employee Service
+
+This file abstracts the API call away from the component, making it reusable. It uses the apiClient we configured earlier so the HTTP-only cookie is automatically attached.
+
+Create frontend/src/modules/employees/employee.service.js:
+
+import apiClient from '../../config/axiosInstance';
+
+export const getEmployees = async (searchQuery = '') => {
+  // Pass the search query as a URL parameter if it exists
+  const params = searchQuery ? { search: searchQuery } : {};
+  const response = await apiClient.get('/employees', { params });
+  return response.data;
+};
+
+
+2. Build the Directory Page Component
+
+This component uses standard React hooks (useState, useEffect) to fetch the data on load. It wraps the standard Bootstrap <table className="table"> in a <div className="table-responsive"> container, which ensures the table scrolls horizontally on mobile devices rather than breaking the page layout.
+
+Create frontend/src/modules/employees/pages/EmployeeDirectory.jsx:
+
+import { useState, useEffect } from 'react';
+import { getEmployees } from '../employee.service';
+import { useAuth } from '../../../context/AuthContext';
+
+const EmployeeDirectory = () => {
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const { user } = useAuth(); // We can use this to conditionally show Admin buttons
+
+  // Function to fetch data from the backend
+  const fetchDirectory = async (search = '') => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getEmployees(search);
+      // Our backend returns { count, data: [...] }
+      setEmployees(data.data); 
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load employees.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch all employees when the page first loads
+  useEffect(() => {
+    fetchDirectory();
+  }, []);
+
+  // Handle the search form submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchDirectory(searchTerm);
+  };
+
+  return (
+    <div className="container-fluid py-4">
+      {/* Page Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Employee Directory</h2>
+        
+        {/* Only show the Add button if the user is an Admin */}
+        {user?.role === 'Admin' && (
+          <button className="btn btn-primary">
+            <i className="bi bi-person-plus me-2"></i>
+            Add Employee
+          </button>
+        )}
+      </div>
+
+      {/* Main Content Card */}
+      <div className="card shadow-sm border-0">
+        <div className="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-secondary">All Staff</h5>
+          
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="d-flex" style={{ maxWidth: '300px' }}>
+            <div className="input-group input-group-sm">
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Search name..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button className="btn btn-outline-secondary" type="submit">
+                <i className="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="card-body p-0">
+          {/* Status Messages */}
+          {loading && (
+            <div className="text-center p-5">
+              <div className="spinner-border text-primary" role="status"></div>
+            </div>
+          )}
+          
+          {error && (
+            <div className="alert alert-danger m-3" role="alert">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && employees.length === 0 && (
+            <div className="text-center p-5 text-muted">
+              No employees found matching your criteria.
+            </div>
+          )}
+
+          {/* Responsive Data Table */}
+          {!loading && !error && employees.length > 0 && (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th className="ps-4">Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Manager</th>
+                    <th className="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.map((emp) => (
+                    <tr key={emp.id}>
+                      <td className="ps-4">
+                        <div className="d-flex align-items-center">
+                          {/* Placeholder Avatar */}
+                          <div 
+                            className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                            style={{ width: '35px', height: '35px', fontSize: '14px' }}
+                          >
+                            {emp.firstName.charAt(0)}{emp.lastName.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="fw-bold">{emp.firstName} {emp.lastName}</div>
+                            {/* Shows admin badge if their linked user account is an admin */}
+                            {emp.userId?.role === 'Admin' && (
+                              <span className="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill" style={{ fontSize: '0.7em' }}>
+                                Admin
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        {/* Accessing the populated Auth User email */}
+                        <a href={`mailto:${emp.userId?.email}`} className="text-decoration-none text-body">
+                          {emp.userId?.email}
+                        </a>
+                      </td>
+                      <td>
+                        {/* Accessing the populated Department info */}
+                        <span className="badge bg-info bg-opacity-10 text-info border border-info rounded-pill">
+                          {emp.departmentId?.name || 'Unassigned'}
+                        </span>
+                      </td>
+                      <td>
+                        {/* Accessing the populated Manager info */}
+                        <span className="text-muted">
+                          {emp.managerId 
+                            ? `${emp.managerId.firstName} ${emp.managerId.lastName}` 
+                            : '--'}
+                        </span>
+                      </td>
+                      <td className="text-end pe-4">
+                        <button className="btn btn-sm btn-light text-primary border me-2">
+                          View
+                        </button>
+                        {user?.role === 'Admin' && (
+                          <button className="btn btn-sm btn-light text-danger border">
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeDirectory;
+
+
+
+
+User prompt: How do I build the 'Add Employee' modal and form with validation to allow Admins to create new users directly from this page?
+
+Response: To build a production-ready form, we will use React Hook Form for state management and validation. It minimizes re-renders and handles complex validation rules effortlessly.
+
+We will create a controlled Bootstrap modal component that handles its own submission logic and then tells the parent EmployeeDirectory to refresh the list upon success.
+
+1. Update the Employee Service
+
+First, add the POST request to your service file.
+
+Update frontend/src/modules/employees/employee.service.js:
+
+import apiClient from '../../config/axiosInstance';
+
+export const getEmployees = async (searchQuery = '') => {
+  const params = searchQuery ? { search: searchQuery } : {};
+  const response = await apiClient.get('/employees', { params });
+  return response.data;
+};
+
+// Add the new creation method
+export const createEmployee = async (employeeData) => {
+  const response = await apiClient.post('/employees', employeeData);
+  return response.data;
+};
+
+
+2. Build the Modal Component
+
+This component uses react-hook-form to enforce rules (like requiring an email or minimum password length) before the data is ever sent to the backend.
+
+Create frontend/src/modules/employees/components/AddEmployeeModal.jsx:
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { createEmployee } from '../employee.service';
+
+const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
+  const [apiError, setApiError] = useState(null);
+  
+  // Initialize React Hook Form
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+
+  // Handle form submission
+  const onSubmit = async (data) => {
+    try {
+      setApiError(null);
+      await createEmployee(data);
+      reset(); // Clear form fields
+      onEmployeeAdded(); // Tell parent to refresh the directory
+      onClose(); // Close the modal
+    } catch (error) {
+      setApiError(error.response?.data?.message || 'Failed to create employee');
+    }
+  };
+
+  // If the modal isn't open, don't render anything
+  if (!isOpen) return null;
+
+  return (
+    <>
+      {/* Modal Backdrop */}
+      <div className="modal-backdrop fade show"></div>
+      
+      {/* Modal Dialog */}
+      <div className="modal fade show d-block" tabIndex="-1" role="dialog">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header border-bottom-0">
+              <h5 className="modal-title">Provision New Employee</h5>
+              <button type="button" className="btn-close" onClick={onClose}></button>
+            </div>
+            
+            <div className="modal-body pb-0">
+              {apiError && <div className="alert alert-danger p-2 text-sm">{apiError}</div>}
+              
+              <form id="addEmployeeForm" onSubmit={handleSubmit(onSubmit)}>
+                <div className="row g-3">
+                  {/* Account Details */}
+                  <h6 className="mb-0 text-primary">Account Credentials</h6>
+                  
+                  <div className="col-md-6">
+                    <label className="form-label">Email Address</label>
+                    <input 
+                      type="email" 
+                      className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                      {...register('email', { 
+                        required: 'Email is required',
+                        pattern: { value: /^\S+@\S+$/i, message: 'Invalid email format' }
+                      })} 
+                    />
+                    {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <label className="form-label">Temporary Password</label>
+                    <input 
+                      type="password" 
+                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                      {...register('password', { 
+                        required: 'Password is required',
+                        minLength: { value: 8, message: 'Must be at least 8 characters' }
+                      })} 
+                    />
+                    {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
+                  </div>
+
+                  {/* Profile Details */}
+                  <h6 className="mb-0 mt-4 text-primary">Profile Details</h6>
+                  
+                  <div className="col-md-6">
+                    <label className="form-label">First Name</label>
+                    <input 
+                      type="text" 
+                      className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
+                      {...register('firstName', { required: 'First name is required' })} 
+                    />
+                    {errors.firstName && <div className="invalid-feedback">{errors.firstName.message}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">Last Name</label>
+                    <input 
+                      type="text" 
+                      className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+                      {...register('lastName', { required: 'Last name is required' })} 
+                    />
+                    {errors.lastName && <div className="invalid-feedback">{errors.lastName.message}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">Department ID</label>
+                    {/* In a real app, this would be a <select> populated dynamically from a /departments API */}
+                    <input 
+                      type="text" 
+                      placeholder="Paste Department ObjectId..."
+                      className={`form-control ${errors.departmentId ? 'is-invalid' : ''}`}
+                      {...register('departmentId', { required: 'Department ID is required' })} 
+                    />
+                    {errors.departmentId && <div className="invalid-feedback">{errors.departmentId.message}</div>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label">Phone</label>
+                    <input 
+                      type="text" 
+                      className="form-control"
+                      {...register('phone')} 
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+            <div className="modal-footer border-top-0 pt-4">
+              <button type="button" className="btn btn-light border" onClick={onClose} disabled={isSubmitting}>
+                Cancel
+              </button>
+              <button type="submit" form="addEmployeeForm" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</>
+                ) : 'Create Employee'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default AddEmployeeModal;
+
+
+Installation Note: To use the form hook, run npm install react-hook-form in your frontend directory.
+
+3. Integrate into the Directory Page
+
+Now, import the modal into EmployeeDirectory.jsx and add state to toggle its visibility.
+
+Update frontend/src/modules/employees/pages/EmployeeDirectory.jsx:
+
+import { useState, useEffect } from 'react';
+import { getEmployees } from '../employee.service';
+import { useAuth } from '../../../context/AuthContext';
+import AddEmployeeModal from '../components/AddEmployeeModal'; // Import the new modal
+
+const EmployeeDirectory = () => {
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // State to control modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const { user } = useAuth();
+
+  const fetchDirectory = async (search = '') => {
+    try {
+      setLoading(true);
+      const data = await getEmployees(search);
+      setEmployees(data.data); 
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load employees.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDirectory();
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchDirectory(searchTerm);
+  };
+
+  return (
+    <div className="container-fluid py-4">
+      {/* Include the Modal Component */}
+      <AddEmployeeModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onEmployeeAdded={() => fetchDirectory(searchTerm)} // Refresh list on success
+      />
+
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Employee Directory</h2>
+        
+        {user?.role === 'Admin' && (
+          // Update the button to trigger the modal
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+            <i className="bi bi-person-plus me-2"></i>
+            Add Employee
+          </button>
+        )}
+      </div>
+
+      {/* ... rest of the card and table UI remains identical ... */}
+    </div>
+  );
+};
+
+export default EmployeeDirectory;
+
+
+
+
+User prompt: mentain the seesion management using token and two step verification like email or sms verification during login/signup/update/upgrade and also mentain the options for update,upgrade,recovery options for each credential of eascg component aspect to control the security , authentication and add different type of privilage to control employee for add/update/upgrade ,Employee ID must be based on dept name followed by current month & year and then 3 digit sequence number
+
+Response: To support Two-Factor Authentication (2FA), credential recovery, granular Role-Based Access Control (RBAC), and dynamic auto-generated Employee IDs, we must expand both our database schemas and backend controllers.
+
+Here is the complete implementation structure to upgrade the system's security and business logic.
+
+1. Upgraded Database Schemas
+
+We need to add OTP (One-Time Password) and recovery fields to the User schema, and the custom employeeId field to the Employee schema.
+
+User Schema (Updated for 2FA & Recovery)
+
+// backend/src/modules/users/user.model.js
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  passwordHash: { type: String, required: true, select: false },
+  
+  // Granular Privileges
+  role: { 
+    type: String, 
+    enum: ['SuperAdmin', 'HR_Manager', 'Employee', 'IT_Admin'], 
+    default: 'Employee' 
+  },
+  permissions: [{ type: String }], // e.g., ['CAN_ADD_EMP', 'CAN_UPGRADE_CREDENTIALS']
+  
+  // 2FA & Security Management
+  isTwoFactorEnabled: { type: Boolean, default: true }, // Forced for MVP
+  twoFactorMethod: { type: String, enum: ['EMAIL', 'SMS'], default: 'EMAIL' },
+  authOtp: { type: String, select: false },
+  authOtpExpires: { type: Date, select: false },
+  
+  // Credential Recovery
+  resetPasswordToken: { type: String, select: false },
+  resetPasswordExpires: { type: Date, select: false },
+  
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
+
+export default mongoose.model('User', userSchema);
+
+
+Employee Schema (With Auto-ID Generation Hook)
+
+This uses a Mongoose pre('save') hook to automatically generate the ID ([DeptName]-[MMYYYY]-[001]) right before the document is saved to the database.
+
+// backend/src/modules/employees/employee.model.js
+import mongoose from 'mongoose';
+
+const employeeSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  employeeId: { type: String, unique: true }, // e.g., IT-102026-001
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  departmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', required: true },
+}, { timestamps: true });
+
+// Pre-save hook to generate the custom Employee ID
+employeeSchema.pre('save', async function (next) {
+  // Only generate ID if this is a newly created document
+  if (!this.isNew) return next();
+
+  try {
+    // 1. Get the Department Name
+    const dept = await mongoose.model('Department').findById(this.departmentId);
+    if (!dept) throw new Error('Invalid Department ID');
+    
+    // Format Dept Name (Remove spaces, uppercase)
+    const formattedDept = dept.name.toUpperCase().replace(/\s+/g, '');
+
+    // 2. Get Current Month & Year (e.g., 102026)
+    const now = new Date();
+    const monthYear = `{now.getFullYear()}`;
+
+    // 3. Create the prefix (e.g., IT-102026-)
+    const prefix = `{monthYear}-`;
+
+    // 4. Find the last employee created in this department this month
+    const lastEmployee = await this.constructor
+      .findOne({ employeeId: new RegExp(`^${prefix}`) })
+      .sort({ employeeId: -1 });
+
+    // 5. Calculate Sequence (001, 002, etc.)
+    let sequence = 1;
+    if (lastEmployee && lastEmployee.employeeId) {
+      const lastSeq = parseInt(lastEmployee.employeeId.split('-')[2], 10);
+      sequence = lastSeq + 1;
+    }
+
+    // 6. Assign the final ID
+    this.employeeId = `${prefix}${String(sequence).padStart(3, '0')}`;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default mongoose.model('Employee', employeeSchema);
+
+
+2. Granular Privilege Middleware
+
+Instead of just checking if a user is an "Admin", we use permission flags. This allows HR to add employees, while IT manages system upgrades.
+
+// backend/src/middleware/permission.middleware.js
+export const requirePermission = (requiredPermission) => {
+  return (req, res, next) => {
+    // SuperAdmins bypass all checks
+    if (req.user.role === 'SuperAdmin') {
+      return next();
+    }
+
+    // Check if the user has the specific granular permission
+    if (!req.user.permissions.includes(requiredPermission)) {
+      return res.status(403).json({ 
+        message: 'Security Alert: You lack the privileges required to perform this action.' 
+      });
+    }
+    
+    next();
+  };
+};
+
+// Usage in Routes:
+// router.post('/add', protectRoute, requirePermission('CAN_ADD_EMP'), createEmployee);
+// router.put('/upgrade', protectRoute, requirePermission('CAN_UPGRADE_SYSTEM'), upgradeSystem);
+
+
+3. Two-Step Verification (2FA) Auth Controller
+
+The login flow is now broken into two steps:
+
+Validate credentials -> Generate & Send OTP.
+
+Validate OTP -> Issue HTTP-Only JWT Cookie.
+
+// backend/src/modules/auth/auth.controller.js
+import crypto from 'crypto';
+import User from '../users/user.model.js';
+import { sendEmail } from '../../utils/mailer.js'; // Assumes a Nodemailer/SendGrid wrapper
+
+/**
+ * Step 1: Login & Trigger OTP
+ */
+export const loginInitiate = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email }).select('+passwordHash');
+  
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Hash OTP before saving to DB for security
+  const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+  
+  user.authOtp = hashedOtp;
+  user.authOtpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
+  await user.save();
+
+  // Send OTP via Email (or Twilio for SMS)
+  await sendEmail({
+    to: user.email,
+    subject: 'Your 2FA Login Code',
+    text: `Your verification code is: ${otp}. It expires in 10 minutes.`
+  });
+
+  res.status(200).json({ 
+    message: 'Step 1 complete. 2FA code sent to your registered device/email.',
+    requires2FA: true,
+    email: user.email 
+  });
+};
+
+/**
+ * Step 2: Verify OTP & Issue Session
+ */
+export const loginVerify = async (req, res) => {
+  const { email, otp } = req.body;
+  
+  const user = await User.findOne({ email }).select('+authOtp +authOtpExpires');
+  if (!user) return res.status(401).json({ message: 'Invalid request' });
+
+  // Verify OTP validity and expiry
+  const hashedInputOtp = crypto.createHash('sha256').update(otp).digest('hex');
+  
+  if (user.authOtp !== hashedInputOtp || user.authOtpExpires < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired 2FA code' });
+  }
+
+  // Clear OTP fields
+  user.authOtp = undefined;
+  user.authOtpExpires = undefined;
+  await user.save();
+
+  // Issue HTTP-Only Cookie (as defined in previous steps)
+  const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '8h' });
+  
+  res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 8 * 60 * 60 * 1000 });
+  res.status(200).json({ message: 'Login successful' });
+};
+
+
+4. Credential Recovery & Upgrade
+
+Users can recover lost passwords or upgrade their credentials. Both flows require email verification to prevent account hijacking.
+
+Forgot & Reset Password
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  
+  if (!user) {
+    // Return standard success to prevent email enumeration attacks
+    return res.status(200).json({ message: 'If the email exists, a reset link was sent.' });
+  }
+
+  // Generate a secure reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins
+  await user.save();
+
+  // Send link: http://frontend-url.com/reset-password?token=abc...
+  const resetUrl = `{resetToken}`;
+  await sendEmail({
+    to: user.email,
+    subject: 'Password Recovery Request',
+    text: `Click here to securely reset your password: ${resetUrl}`
+  });
+
+  res.status(200).json({ message: 'If the email exists, a reset link was sent.' });
+};
+
+
+Upgrading / Updating Credentials (Requires Re-authentication)
+
+To change a password or switch from Email 2FA to SMS 2FA while logged in, the user must provide an OTP sent to their current device.
+
+// PUT /api/auth/update-credentials
+export const updateCredentials = async (req, res) => {
+  // req.user is provided by the protectRoute middleware
+  const { newPassword, otp } = req.body;
+  
+  // 1. Verify the OTP provided matches the one sent to their active session
+  const hashedInputOtp = crypto.createHash('sha256').update(otp).digest('hex');
+  
+  const user = await User.findById(req.user._id).select('+authOtp +authOtpExpires');
+  if (user.authOtp !== hashedInputOtp || user.authOtpExpires < Date.now()) {
+    return res.status(403).json({ message: 'Update failed: Invalid verification code.' });
+  }
+
+  // 2. Hash and save the new password
+  const salt = await bcrypt.genSalt(12);
+  user.passwordHash = await bcrypt.hash(newPassword, salt);
+  
+  // Clear the OTP
+  user.authOtp = undefined;
+  user.authOtpExpires = undefined;
+  await user.save();
+
+  res.status(200).json({ message: 'Credentials updated successfully. Next login will require the new password.' });
+};
+
+
+
+
+User prompt: How do I modify my React AuthContext and Login form to support this two-step OTP verification flow?
+
+Response: To support the two-step 2FA flow, we need to split the authentication process. The AuthContext will now expose two distinct functions: one to trigger the OTP, and one to verify it and establish the session. The LoginForm will use local state to toggle between the credential inputs and the OTP input.
+
+1. Update the AuthContext
+
+Modify frontend/src/context/AuthContext.jsx to handle the new two-step API flow.
+
+import { createContext, useState, useEffect, useContext } from 'react';
+import apiClient from '../config/axiosInstance';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check auth status on load
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await apiClient.get('/auth/me');
+        setUser(response.data);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuthStatus();
+  }, []);
+
+  // Step 1: Validate credentials and trigger OTP email/SMS
+  const loginInitiate = async (email, password) => {
+    const response = await apiClient.post('/auth/login', { email, password });
+    return response.data; // Returns { requires2FA: true, message: '...' }
+  };
+
+  // Step 2: Verify OTP and fetch user profile
+  const loginVerify = async (email, otp) => {
+    // 1. Send OTP to backend to set the HTTP-Only cookie
+    await apiClient.post('/auth/verify-otp', { email, otp });
+    
+    // 2. Fetch the user profile now that the cookie is set
+    const userResponse = await apiClient.get('/auth/me');
+    setUser(userResponse.data);
+  };
+
+  const logout = async () => {
+    await apiClient.post('/auth/logout');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated: !!user, 
+      loading, 
+      loginInitiate, 
+      loginVerify, 
+      logout 
+    }}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
+};
+
+
+2. Build the Multi-Step Login Form
+
+This component manages its own UI state (step), transitioning from the password screen to the OTP screen only after the backend confirms the credentials are correct.
+
+Create or update frontend/src/modules/auth/components/LoginForm.jsx:
+
+import { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const LoginForm = () => {
+  // Form Data State
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  
+  // UI Flow State
+  const [step, setStep] = useState(1); // 1 = Credentials, 2 = OTP
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+
+  const { loginInitiate, loginVerify } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle Step 1: Email & Password
+  const handleCredentialSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await loginInitiate(email, password);
+      if (response.requires2FA) {
+        setMessage(response.message); // e.g., "2FA code sent to your email"
+        setStep(2); // Move to OTP input screen
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Step 2: OTP Verification
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await loginVerify(email, otp);
+      navigate('/dashboard'); // Successful login, redirect to protected route
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid or expired verification code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="card shadow-sm border-0 mx-auto" style={{ maxWidth: '400px' }}>
+      <div className="card-body p-4">
+        <h4 className="text-center mb-4">
+          {step === 1 ? 'Sign In' : 'Two-Step Verification'}
+        </h4>
+
+        {/* Status Alerts */}
+        {error && <div className="alert alert-danger p-2 text-sm">{error}</div>}
+        {message && step === 2 && <div className="alert alert-success p-2 text-sm">{message}</div>}
+
+        {/* Step 1 Form: Credentials */}
+        {step === 1 && (
+          <form onSubmit={handleCredentialSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Email address</label>
+              <input 
+                type="email" 
+                className="form-control" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required 
+              />
+            </div>
+            <div className="mb-4">
+              <label className="form-label">Password</label>
+              <input 
+                type="password" 
+                className="form-control" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="btn btn-primary w-100" 
+              disabled={isLoading}
+            >
+              {isLoading ? 'Verifying...' : 'Continue'}
+            </button>
+          </form>
+        )}
+
+        {/* Step 2 Form: OTP */}
+        {step === 2 && (
+          <form onSubmit={handleOtpSubmit}>
+            <div className="mb-4">
+              <label className="form-label">6-Digit Verification Code</label>
+              <input 
+                type="text" 
+                className="form-control text-center fs-4 letter-spacing-2" 
+                maxLength="6"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="------"
+                autoComplete="one-time-code"
+                required 
+              />
+              <div className="form-text mt-2">
+                Enter the code sent to {email}
+              </div>
+            </div>
+            <button 
+              type="submit" 
+              className="btn btn-primary w-100 mb-3" 
+              disabled={isLoading || otp.length < 6}
+            >
+              {isLoading ? 'Authenticating...' : 'Verify & Login'}
+            </button>
+            <div className="text-center">
+              <button 
+                type="button" 
+                className="btn btn-link text-decoration-none btn-sm"
+                onClick={() => setStep(1)}
+              >
+                <i className="bi bi-arrow-left me-1"></i> Back to login
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LoginForm;
