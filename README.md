@@ -2,25 +2,22 @@
 
 A reliable, scalable, and modular MERN-stack Employee Management System featuring custom sequential Employee ID generation, Two-Step Authentication (2FA), and granular privilege-based role access control. Built with Domain-Driven Design (DDD) to ensure isolated business logic and easy cloud deployment.
 
----
-
 ## 🚀 Project Scope & Features
 
-- **User Management:** Registration, login, and profile management.
-- **Role-Based Access Control:** Dedicated Admin and User dashboards.
-- **Core Workflows:** Complete business logic for employee management.
-- **Data Handling:** Advanced search, filtering, and data management.
-- **Validation:** Secure forms with robust user input validation.
-- **Alerts:** Automated notifications and email integrations.
-- **API:** Modular RESTful APIs.
-- **UI/UX:** Responsive frontend adapting perfectly to desktop and mobile.
-- **Analytics:** Basic reporting and aggregation dashboards.
-
----
+* **User Management:** Registration, login, and profile management.
+* **Role-Based Access Control:** Dedicated Admin and User dashboards.
+* **Core Workflows:** Complete business logic for employee management.
+* **Data Handling:** Advanced search, filtering, and data management.
+* **Validation:** Secure forms with robust user input validation.
+* **Alerts:** Automated notifications and email integrations.
+* **API:** Modular RESTful APIs.
+* **UI/UX:** Responsive frontend adapting perfectly to desktop and mobile.
+* **Analytics:** Basic reporting and aggregation dashboards.
 
 ## 📂 Project Architecture & Directory Layout
 
 ### Root Project Directory
+
 The project uses a monorepo style with separate backend and frontend environments for independent scaling and cloud deployment.
 
 ```text
@@ -30,16 +27,17 @@ employee-management-system/
 ├── docker-compose.yml        # For local containerized testing & cloud deployment
 ├── .gitignore
 └── README.md
+```
 
-###1. Backend Structure (Node.js + Express + MongoDB)
+### 1. Backend Structure (Node.js + Express + MongoDB)
+
 The backend follows a strictly modular, feature-based MVP/Controller design pattern.
 
-Model: MongoDB Schemas (Data validation layer managed by Mongoose).
+* **Model:** MongoDB Schemas (Data validation layer managed by Mongoose).
+* **Presenter/Controller:** Dedicated route micro-logic, cryptographic operations, and server-side rules.
+* **Routes:** Dispatches REST API network endpoints.
 
-Presenter/Controller: Dedicated route micro-logic, cryptographic operations, and server-side rules.
-
-Routes: Dispatches REST API network endpoints.
-
+```text
 backend/
 ├── src/
 │   ├── config/                   # Global configs (db.js, cloud.js, mailer.js)
@@ -55,13 +53,13 @@ backend/
 │   └── server.js                 # Entry point, Server & DB startup
 ├── .env                          # Environment variables
 └── package.json
+```
 
-
-###2. Frontend Structure (React + Vite + Bootstrap)
-
+### 2. Frontend Structure (React + Vite + Bootstrap)
 
 The frontend maps directly to the backend domain modules. Every functional part of the application contains its own decoupled UI modules.
 
+```text
 frontend/
 ├── public/                       # Static assets
 ├── src/
@@ -84,98 +82,101 @@ frontend/
 ├── index.html
 ├── vite.config.js                # Vite config (proxy setup for backend)
 └── package.json
+```
 
-
-
-##☁️ Public Deployment & Implementation Structure
-
+## ☁️ Public Deployment & Implementation Structure
 
 To make the application live, scalable, and secure, the decoupled architecture is deployed across specialized cloud services:
 
-Frontend (React + Vite): Deployed on Vercel or AWS Amplify for global CDN delivery and automated rebuilds on push.
+* **Frontend (React + Vite):** Deployed on Vercel or AWS Amplify for global CDN delivery and automated rebuilds on push.
+* **Backend (Node.js + Express):** Deployed on AWS Elastic Beanstalk, Render, or DigitalOcean App Platform. Containerized using Docker for production parity and auto-scaling.
+* **Database (MongoDB):** Hosted on MongoDB Atlas for automated backups, end-to-end encryption, and replica sets.
+* **Asset Storage:** AWS S3 or Cloudinary handles avatars and PDFs, keeping the API stateless.
+* **Security & DNS:** Cloudflare provides SSL/TLS encryption, DDoS protection, and WAF rules.
 
-Backend (Node.js + Express): Deployed on AWS Elastic Beanstalk, Render, or DigitalOcean App Platform. Containerized using Docker for production parity and auto-scaling.
+## 📋 Software Requirements Specification (SRS)
 
-Database (MongoDB): Hosted on MongoDB Atlas for automated backups, end-to-end encryption, and replica sets.
+### Non-Functional Requirements
 
-Asset Storage: AWS S3 or Cloudinary handles avatars and PDFs, keeping the API stateless.
+* **Performance:** API response time must be under 300ms for 95% of requests.
+* **Scalability:** System must handle up to 500 concurrent authenticated users.
+* **Availability:** 99.9% uptime SLA (via AWS auto-scaling and MongoDB Atlas replica sets).
+* **Security:** bcrypt password hashing. All endpoints except `/api/auth/login` require JWT in an HTTP-Only cookie.
 
-Security & DNS: Cloudflare provides SSL/TLS encryption, DDoS protection, and WAF rules.
+### Functional Requirements
 
+* **Auth Module:** Locks out users after 5 failed login attempts for 15 minutes.
+* **RBAC Module:** Admins can create/delete employees; Users can only view directories and edit their own profiles.
+* **Employee Module:** Supports complex filtering (name, department, hire date).
+* **Notifications:** Triggers an automated email via SendGrid when a new account is provisioned.
 
-##📋 Software Requirements Specification (SRS)
+## 🗄️ Database Schema Design (ERD)
 
+```mermaid
+erDiagram
+    USERS ||--|| EMPLOYEES : "has profile"
+    USERS {
+        ObjectId _id PK
+        string email
+        string password
+        string role
+    }
+    DEPARTMENTS ||--o{ EMPLOYEES : "employs"
+    DEPARTMENTS {
+        ObjectId _id PK
+        string name
+        string budgetCode
+    }
+    EMPLOYEES ||--o{ ATTENDANCE_LOGS : "logs"
+    EMPLOYEES {
+        ObjectId _id PK
+        ObjectId userId FK
+        ObjectId departmentId FK
+        ObjectId managerId FK
+        string firstName
+        string lastName
+    }
+    ATTENDANCE_LOGS {
+        ObjectId _id PK
+        ObjectId employeeId FK
+        date date
+        string status
+    }
+```
 
-Non-Functional Requirements
-Performance: API response time must be under 300ms for 95% of requests.
+## 🔄 Data Flow Diagram (DFD)
 
-Scalability: System must handle up to 500 concurrent authenticated users.
+### Level 0 (Context Diagram)
 
-Availability: 99.9% uptime SLA (via AWS auto-scaling and MongoDB Atlas replica sets).
+```mermaid
+graph TD
+    User["HR Admin / Employee"] -- "Web Requests/JSON" --> System["SYSTEM: MERN Employee Manager"]
+    System -- "Email Triggers" --> SendGrid["SendGrid API"]
+    System -- "BSON Read/Writes" <--> DB[("MongoDB Atlas")]
+```
 
-Security: bcrypt password hashing. All endpoints except /api/auth/login require JWT in an HTTP-Only cookie.
+### Level 1 (Core Process Flow)
 
-##Functional Requirements
-Auth Module: Locks out users after 5 failed login attempts for 15 minutes.
+```mermaid
+flowchart TD
+    subgraph Auth ["1. Authentication Flow"]
+        A1([User Submits Credentials]) --> A2[Auth Controller]
+        A2 -->|Validates| A3[(Users DB)]
+        A3 -->|Success| A4[Generates JWT]
+        A4 --> A5([Sets HTTP-Only Cookie])
+    end
 
-RBAC Module: Admins can create/delete employees; Users can only view directories and edit their own profiles.
+    subgraph Management ["2. Employee Management Flow"]
+        M1([Admin Submits Data]) --> M2[Employee Controller]
+        M2 -->|Validates & Writes| M3[(Users & Employees DB)]
+        M2 -->|Sends Event| M4[Notification Service]
+        M4 --> M5([SendGrid Welcome Email])
+    end
 
-Employee Module: Supports complex filtering (name, department, hire date).
-
-Notifications: Triggers an automated email via SendGrid when a new account is provisioned.
-
-
-##🗄️ Database Schema Design (ERD)
-
-
-[ USERS ] 1 ──────────── 1 [ EMPLOYEES ]
-  - _id (PK)                 - _id (PK)
-  - email                    - userId (FK -> Users._id)
-  - password                 - departmentId (FK -> Departments._id)
-  - role                     - managerId (FK -> Employees._id)
-                             - firstName
-                             - lastName
-                                   │
-                                   │ ∞
-                                   │
-[ DEPARTMENTS ] 1 ───────── ∞ [ ATTENDANCE_LOGS ]
-  - _id (PK)                   - _id (PK)
-  - name                       - employeeId (FK -> Employees._id)
-  - budgetCode                 - date
-                               - status
-
-
-#🔄 Data Flow Diagram (DFD)
-
-
-Level 0 (Context Diagram)
-
-[ HR Admin / Employee ] ───(Web Requests/JSON)───> [ SYSTEM: MERN Employee Manager ]
-                                                              │
-[ SendGrid API ] <───(Email Triggers)─────────────────────────┤
-                                                              │
-[ MongoDB Atlas ] <───(BSON Read/Writes)──────────────────────┘
-
-
-#Level 1 (Core Process Flow)
-
-
-###Authentication Flow:
-
-###User submits Credentials ➝ Auth Controller ➝ Validates against Users DB.
-
-###Success ➝ Generates JWT ➝ Sets HTTP-Only Cookie in User's Browser.
-
-###Employee Management Flow (Admin):
-
-###Admin submits Employee Data ➝ Employee Controller ➝ Validates payload.
-
-###Controller writes to Users DB (creates login) AND Employees DB (creates profile).
-
-###Controller sends event to Notification Service ➝ Triggers welcome email to new hire.
-
-##Data Retrieval Flow (User):
-
-###User requests Directory ➝ Employee Controller ➝ Queries Employees DB with .populate('departmentId').
-
-###Controller formats JSON ➝ Returns to React Frontend for UI rendering.
+    subgraph Retrieval ["3. Data Retrieval Flow"]
+        R1([User Requests Directory]) --> R2[Employee Controller]
+        R2 -->|Queries .populate| R3[(Employees DB)]
+        R3 --> R4[Controller Formats JSON]
+        R4 --> R5([React Frontend UI Rendering])
+    end
+```
